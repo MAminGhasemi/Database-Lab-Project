@@ -298,7 +298,7 @@ END;
 
 -- new function added in the third phase
 create function show_product_sell_count()
-return TABLE
+RETURNS TABLE
 as 
 BEGIN
 select * from User_Transactions
