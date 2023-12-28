@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel, QLineEdit, QTextEdit, QHBoxLayout
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel, QLineEdit, QTextEdit, QHBoxLayout, QTableWidget, QTableWidgetItem
 import pyodbc
 
 class FunctionPage(QWidget):
@@ -18,7 +18,7 @@ class FunctionPage(QWidget):
         # Create function widgets
         self.create_function_widget('CheckNationalCode', 'National Code:', 'national_code_input', 'Result:', 'national_code_output', layout)
         self.create_function_widget('TotalProductPriceOfUser', 'User ID:', 'user_id_input', 'Result:', 'total_price_output', layout)
-        self.create_function_widget('Function 3', 'Input 3:', 'input3', 'Output 3:', 'output3', layout)
+        self.create_function_widget('GetProductMessages', 'Product ID:', 'product_id_input', 'Result:', 'product_messages_output', layout)
 
         # Add individual run buttons for each function
         run_button_1 = QPushButton('Run CheckNationalCode', self)
@@ -29,8 +29,8 @@ class FunctionPage(QWidget):
         run_button_2.clicked.connect(self.run_total_product_price_of_user)
         layout.addWidget(run_button_2)
 
-        run_button_3 = QPushButton('Run Function 3', self)
-        run_button_3.clicked.connect(self.run_function3)
+        run_button_3 = QPushButton('Run GetProductMessages', self)
+        run_button_3.clicked.connect(self.run_get_product_messages)
         layout.addWidget(run_button_3)
 
         # Set the layout for the function page
@@ -69,10 +69,11 @@ class FunctionPage(QWidget):
         result = self.total_product_price_of_user(int(user_id_text))
         self.total_price_output.setText(f'Result: {result}')
 
-    def run_function3(self):
-        # Get input and perform Function 3
-        input3_text = self.input3.text()
-        self.output3.setText(f'Output 3: {self.function3(input3_text)}')
+    def run_get_product_messages(self):
+        # Get input and perform GetProductMessages function
+        product_id_text = self.product_id_input.text()
+        result = self.get_product_messages(int(product_id_text))
+        self.display_product_messages(result)
 
     def check_national_code(self, national_code):
         # Execute the CheckNationalCode function using the stored cursor
@@ -94,6 +95,17 @@ class FunctionPage(QWidget):
             print(f"Error: {ex}")
             return 0
 
-    def function3(self, input_text):
-        # Replace this with your actual function logic for Function 3
-        return f'Function 3 result for {input_text}'
+    def get_product_messages(self, product_id):
+        # Execute the GetProductMessages function using the stored cursor
+        try:
+            self.cursor.execute("SELECT * FROM dbo.GetProductMessages(?)", product_id)
+            result = self.cursor.fetchall()
+            return result
+        except pyodbc.Error as ex:
+            print(f"Error: {ex}")
+            return []
+
+    def display_product_messages(self, messages):
+        # Display the result of GetProductMessages in the QTextEdit widget
+        message_text = "\n".join([str(message[4]) for message in messages])
+        self.product_messages_output.setText(message_text)
