@@ -16,20 +16,19 @@ class FunctionPage(QWidget):
         layout = QVBoxLayout()
 
         # Create function widgets
-        self.create_function_widget('CheckNationalCode', 'National Code:', 'national_code_input', 'Result:', 'national_code_output', layout)
-        self.create_function_widget('TotalProductPriceOfUser', 'User ID:', 'user_id_input', 'Result:', 'total_price_output', layout)
-        self.create_function_widget('GetProductMessages', 'Product ID:', 'product_id_input', 'Result:', 'product_messages_output', layout)
-
+        self.create_function_widget('Check National Code', 'National Code:', 'national_code_input', 'Result:', 'national_code_output', layout)
         # Add individual run buttons for each function
-        run_button_1 = QPushButton('Run CheckNationalCode', self)
+        run_button_1 = QPushButton('Run Check National Code', self)
         run_button_1.clicked.connect(self.run_check_national_code)
         layout.addWidget(run_button_1)
-
-        run_button_2 = QPushButton('Run TotalProductPriceOfUser', self)
+        
+        self.create_function_widget('Total Product Price Of User', 'User ID:', 'user_id_input', 'Result:', 'total_price_output', layout)
+        run_button_2 = QPushButton('Run Total Product Price Of User', self)
         run_button_2.clicked.connect(self.run_total_product_price_of_user)
         layout.addWidget(run_button_2)
 
-        run_button_3 = QPushButton('Run GetProductMessages', self)
+        self.create_function_widget('Get Product Messages', 'Product ID:', 'product_id_input', 'Result:', 'product_messages_output', layout)
+        run_button_3 = QPushButton('Run Get Product Messages', self)
         run_button_3.clicked.connect(self.run_get_product_messages)
         layout.addWidget(run_button_3)
 
