@@ -17,7 +17,7 @@ class FunctionPage(QWidget):
 
         # Create function widgets
         self.create_function_widget('CheckNationalCode', 'National Code:', 'national_code_input', 'Result:', 'national_code_output', layout)
-        self.create_function_widget('Function 2', 'Input 2:', 'input2', 'Output 2:', 'output2', layout)
+        self.create_function_widget('TotalProductPriceOfUser', 'User ID:', 'user_id_input', 'Result:', 'total_price_output', layout)
         self.create_function_widget('Function 3', 'Input 3:', 'input3', 'Output 3:', 'output3', layout)
 
         # Add individual run buttons for each function
@@ -25,8 +25,8 @@ class FunctionPage(QWidget):
         run_button_1.clicked.connect(self.run_check_national_code)
         layout.addWidget(run_button_1)
 
-        run_button_2 = QPushButton('Run Function 2', self)
-        run_button_2.clicked.connect(self.run_function2)
+        run_button_2 = QPushButton('Run TotalProductPriceOfUser', self)
+        run_button_2.clicked.connect(self.run_total_product_price_of_user)
         layout.addWidget(run_button_2)
 
         run_button_3 = QPushButton('Run Function 3', self)
@@ -63,10 +63,11 @@ class FunctionPage(QWidget):
         result = self.check_national_code(national_code_text)
         self.national_code_output.setText(f'Result: {"Valid" if result else "Invalid"}')
 
-    def run_function2(self):
-        # Get input and perform Function 2
-        input2_text = self.input2.text()
-        self.output2.setText(f'Output 2: {self.function2(input2_text)}')
+    def run_total_product_price_of_user(self):
+        # Get input and perform TotalProductPriceOfUser function
+        user_id_text = self.user_id_input.text()
+        result = self.total_product_price_of_user(int(user_id_text))
+        self.total_price_output.setText(f'Result: {result}')
 
     def run_function3(self):
         # Get input and perform Function 3
@@ -83,9 +84,15 @@ class FunctionPage(QWidget):
             print(f"Error: {ex}")
             return False
 
-    def function2(self, input_text):
-        # Replace this with your actual function logic for Function 2
-        return f'Function 2 result for {input_text}'
+    def total_product_price_of_user(self, user_id):
+        # Execute the TotalProductPriceOfUser function using the stored cursor
+        try:
+            self.cursor.execute("SELECT dbo.TotalProductPriceOfUser(?) AS Result", user_id)
+            result = self.cursor.fetchone().Result
+            return result
+        except pyodbc.Error as ex:
+            print(f"Error: {ex}")
+            return 0
 
     def function3(self, input_text):
         # Replace this with your actual function logic for Function 3
