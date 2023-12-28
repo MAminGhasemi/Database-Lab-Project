@@ -4,13 +4,17 @@ CREATE DATABASE ShopApp;
 use ShopAPP;
 
 -- Create Tables
-DROP TABLE IF EXISTS [User];
-DROP TABLE IF EXISTS [User_Address];
-DROP TABLE IF EXISTS [User_Phone_Number];
-DROP TABLE IF EXISTS [Product_Group];
-DROP TABLE IF EXISTS [Product];
-DROP TABLE IF EXISTS [Product_Address];
 DROP TABLE IF EXISTS [Message];
+DROP TABLE IF EXISTS [Product_Address];
+DROP TABLE IF EXISTS [User_Phone_Number];
+DROP TABLE IF EXISTS [User_Address];
+DROP TABLE IF EXISTS [User];
+DROP TABLE IF EXISTS [User_Transactions];
+DROP TABLE IF EXISTS [Product];
+DROP TABLE IF EXISTS [Product_Group];
+
+
+
 
 CREATE TABLE [User] (
   id INT IDENTITY(1,1) NOT NULL,
@@ -20,6 +24,7 @@ CREATE TABLE [User] (
   national_code VARCHAR(10),
   [password] CHAR(128) NOT NULL,
   email VARCHAR(100) NOT NULL,
+  budget int not null default 500,
   create_date DATETIME NOT NULL,
   last_modify DATETIME NOT NULL,
   delete_date DATETIME,
@@ -70,7 +75,7 @@ CREATE TABLE Product (
   title VARCHAR(70) NOT NULL,
   description TEXT COLLATE Latin1_General_CI_AI NOT NULL,
   group_id INT NOT NULL,
-  price DECIMAL(20,2),
+  price DECIMAL(20,2) CHECK (price >= 0),
   create_date DATETIME NOT NULL,
   last_modify DATETIME NOT NULL,
   delete_date DATETIME,
@@ -79,8 +84,8 @@ CREATE TABLE Product (
   FOREIGN KEY (group_id) REFERENCES Product_Group (id)
 );
 
-ALTER TABLE Product
-ADD CONSTRAINT price_not_negative CHECK (price >= 0);
+--ALTER TABLE Product
+--ADD CONSTRAINT price_not_negative CHECK (price >= 0);
 
 CREATE TABLE Product_Address (
   id INT IDENTITY(1,1) NOT NULL,
@@ -167,6 +172,7 @@ VALUES ('Clothing', 'Clothing and accessories', '2023-10-04', '2023-10-04', NULL
 INSERT INTO Product_Group (title, description, create_date, last_modify, delete_date)
 VALUES ('Home Goods', 'Home décor and furnishings', '2023-10-04', '2023-10-04', NULL);
 
+
 -- select * from Product_Group;
 
 INSERT INTO Product (user_id, title, description, group_id, price, create_date, last_modify, delete_date)
@@ -177,6 +183,7 @@ VALUES (2, 'Shirt', 'A beautiful shirt from Mostafa Derispour', 2, 50.00, '2023-
 
 INSERT INTO Product (user_id, title, description, group_id, price, create_date, last_modify, delete_date)
 VALUES (3, 'Coffee Table', 'A stylish coffee table from Amin Ghasemi', 3, 100.00, '2023-10-04', '2023-10-04', NULL);
+
 
 -- select * from Product;
 
@@ -203,11 +210,12 @@ VALUES (3,1,1, 'I love your smartwatch, Yasin!', '2023-10-04', '2023-10-04', NUL
 -- select * from Message;
 
 -- some alters added in the third phase
-ALTER TABLE [User]
-ADD budget int not null default 500;
+--ALTER TABLE [User]
+--ADD budget int not null default 500;
 
 -- Functions
-CREATE FUNCTION GetProductMessages
+DROP FUNCTION IF EXISTS GetProductMessages;
+CREATE  FUNCTION GetProductMessages
 (
     @ProductId INT
 )
@@ -220,6 +228,7 @@ RETURN
     WHERE product_id = @ProductId
 );
 
+DROP FUNCTION IF EXISTS TotalProductPriceOfUser;
 CREATE FUNCTION TotalProductPriceOfUser
 (
     @UserId INT
@@ -236,6 +245,7 @@ BEGIN
     RETURN ISNULL(@TotalPrice, 0);
 END;
 
+DROP FUNCTION IF EXISTS IsProductGroupActive;
 CREATE FUNCTION IsProductGroupActive
 (
     @GroupId INT
@@ -252,7 +262,8 @@ BEGIN
     RETURN @IsActive;
 END;
 
-CREATE OR ALTER FUNCTION dbo.CheckNationalCode (@nationalCode NVARCHAR(MAX))
+DROP FUNCTION IF EXISTS CheckNationalCode;
+CREATE FUNCTION CheckNationalCode (@nationalCode NVARCHAR(MAX))
 RETURNS BIT
 AS
 BEGIN
@@ -296,25 +307,21 @@ BEGIN
     RETURN @isValid;
 END;
 
--- new function added in the third phase
-create function show_product_sell_count()
-RETURNS TABLE
-as 
-BEGIN
-select * from User_Transactions
-pivot(
-    count(*)
-    for product_id in (1,2,3)
-)
-END
+---- new function added in the third phase
+--create function show_product_sell_count(@id1 int,@id2 int)
+--returns TABLE
+--as 
+--BEGIN
+--select * from User_Transactions
+--pivot(
+--    count(*)
+--    for product_id in (1,2,3)
+--)
+--END
 
--- INSERT INTO [User] (first_name, last_name, username, national_code, [password], email, create_date, last_modify, delete_date)
--- VALUES ('Yasin', 'Karbasian', 'yasinkarbasian3', '1115673492',
--- 'd404559f602eab6fd602ac7680dacbfaadd13630335e951f097af3900e9de176b6db28512f2e000b9d04fba5133e8b1c6e8df59db3a8ab9d60be4b97cc9e81db',
--- 'yasinkarbasian@email.com', '2023-10-04', '2023-10-04', NULL);
--- select * from [User]
 
 -- views
+DROP VIEW IF EXISTS User_Profile_View
 CREATE VIEW User_Profile_View AS
 SELECT
     u.id AS user_id,
@@ -333,6 +340,7 @@ JOIN User_Address ua ON u.id = ua.user_id
 JOIN User_Phone_Number upn ON u.id = upn.user_id;
 
 -- product details 
+DROP VIEW IF EXISTS Product_Details_View
 CREATE VIEW Product_Details_View AS
 SELECT
     p.id AS product_id,
@@ -347,6 +355,7 @@ JOIN Product_Group pg ON p.group_id = pg.id
 JOIN [User] u ON p.user_id = u.id;
 
 -- User_Message_History_View
+DROP VIEW IF EXISTS User_Message_History_View
 CREATE VIEW User_Message_History_View AS
 SELECT
     m.id AS message_id,
@@ -361,6 +370,7 @@ JOIN [User] u2 ON m.user_id_2 = u2.id
 JOIN Product p ON m.product_id = p.id;
 
 -- User_Product_Summary_View
+DROP VIEW IF EXISTS User_Product_Summary_View
 CREATE VIEW User_Product_Summary_View AS
 SELECT
     u.id AS user_id,
@@ -373,6 +383,7 @@ LEFT JOIN Product p ON u.id = p.user_id
 GROUP BY u.id, u.username;
 
 -- Active_Products_View
+DROP VIEW IF EXISTS Active_Products_View
 CREATE VIEW Active_Products_View AS
 SELECT
     p.id AS product_id,
@@ -386,6 +397,7 @@ JOIN Product_Group pg ON p.group_id = pg.id
 WHERE p.delete_date IS NULL;
 
 -- Product_Message_Count_View
+DROP VIEW IF EXISTS Product_Message_Count_View
 CREATE VIEW Product_Message_Count_View AS
 SELECT
     p.id AS product_id,
@@ -396,7 +408,8 @@ LEFT JOIN Message m ON p.id = m.product_id
 GROUP BY p.id, p.title;
 
 -- Trigger
-ALTER TRIGGER tr_InsteadOfInsertUser
+DROP TRIGGER IF EXISTS tr_InsteadOfInsertUser;
+CREATE TRIGGER tr_InsteadOfInsertUser
 ON [User]
 INSTEAD OF INSERT
 AS
@@ -435,6 +448,7 @@ BEGIN
     FROM inserted;
 END;
 
+DROP TRIGGER IF EXISTS UpdateMessageDeleteDate;
 CREATE TRIGGER UpdateMessageDeleteDate
 ON Product
 AFTER UPDATE
@@ -442,25 +456,26 @@ AS
 BEGIN
     IF UPDATE(delete_date)
     BEGIN
-        UPDATE Message
-        SET delete_date = D.delete_date
-        FROM Message M
-        INNER JOIN deleted D ON M.product_id = D.id
-        WHERE D.delete_date IS NOT NULL;
-    END;
+        UPDATE [Message]
+        SET delete_date = GETDATE()
+        WHERE product_id IN (SELECT id FROM deleted)
+        AND delete_date IS NULL;
+    END
 END;
 
+DROP TRIGGER IF EXISTS UpdateUserLastModify;
 CREATE TRIGGER UpdateUserLastModify
 ON [User]
 AFTER UPDATE
 AS
 BEGIN
-    UPDATE [User]
-    SET last_modify = GETDATE()
-    FROM [User] U
-    INNER JOIN inserted I ON U.id = I.id;
+     UPDATE [User]
+	 SET last_modify = GETDATE()
+	 FROM inserted
+	WHERE [User].id = inserted.id;
 END;
 
+DROP TRIGGER IF EXISTS PreventProductInsertOnDeletedGroup;
 CREATE TRIGGER PreventProductInsertOnDeletedGroup
 ON Product
 INSTEAD OF INSERT
@@ -485,6 +500,8 @@ BEGIN
     END;
 END;
 
+
+DROP TRIGGER IF EXISTS UpdateProductDeleteDateOnGroupDelete;
 CREATE TRIGGER UpdateProductDeleteDateOnGroupDelete
 ON Product_Group
 AFTER UPDATE
@@ -644,7 +661,105 @@ commit
 END;
 
 -- some tests or usecases for the functions
+--GetProductMessages(@ProductId INT):
+SELECT * FROM GetProductMessages(1) WHERE user_id_1 = 3;
 
+--TotalProductPriceOfUser(@UserId INT):
+SELECT dbo.TotalProductPriceOfUser(1) as Total 
+
+--IsProductGroupActive(@GroupId INT):
+SELECT dbo.IsProductGroupActive(1) AS IsActive;
+
+-- Test CheckNationalCode Function
+DECLARE @NationalCode NVARCHAR(MAX) = '6220032294';
+SELECT dbo.CheckNationalCode(@NationalCode) AS IsValid;
+
+-- Test show_product_sell_count Function
+SELECT * FROM show_product_sell_count();
+
+------------------------------------------------------
 -- some tests or usecases for the views 
+-- View user profiles
+SELECT * FROM User_Profile_View;
 
+-- View product details
+SELECT * FROM Product_Details_View;
+
+-- View user message history
+SELECT * FROM User_Message_History_View;
+
+-- View user product summary
+SELECT * FROM User_Product_Summary_View;
+
+-- View active products
+SELECT * FROM Active_Products_View;
+
+-- View product message count
+SELECT * FROM Product_Message_Count_View;
+
+
+------------------------------------------------------------
+-- some tests or usecases for the Trigger 
+--tr_InsteadOfInsertUser Trigger Test
+-- Attempt to insert a user with an invalid national code
+select COUNT(*) from [User]
+INSERT INTO [User] (first_name, last_name, username, national_code, [password], email, create_date, last_modify, delete_date)
+VALUES ('John', 'Doe', 'johndoe', '6220015432', 'password123', 'john.doe@example.com', GETDATE(), GETDATE(), NULL);
+select COUNT(*) from [User]
+-- Insert a user with a valid national code
+select COUNT(*) from [User]
+INSERT INTO [User] (first_name, last_name, username, national_code, [password], email, create_date, last_modify, delete_date)
+VALUES ('ali', 'rezaee', 'ali', '1235545628',
+'d404559f602eab6fd602ac7680dacbfaadd13630335e951f097af3900e9de176b6db28512f2e000b9d04fba5133e8b1c6e8df59db3a8ab9d60be4b97cc9e81db',
+'yasinkarbasian@email.com', '2023-10-04', '2023-10-04', NULL);
+select COUNT(*) from [User]
+
+--UpdateMessageDeleteDate Trigger Test:
+-- Update the delete_date of a product and check if the trigger updates corresponding messages
+SELECT * FROM Message WHERE product_id = 1;
+UPDATE Product SET delete_date = GETDATE() WHERE id = 1;
+-- Check the Message table to see if the delete_date is updated
+SELECT * FROM Message WHERE product_id = 1;
+
+--UpdateUserLastModify Trigger Test:
+-- Update a user and check if the last_modify is updated
+SELECT * FROM [User] WHERE id = 1;
+UPDATE [User] SET first_name = 'UpdatedName2' WHERE id = 1;
+
+-- Check the updated last_modify value
+SELECT * FROM [User] WHERE id = 1;
+
+--PreventProductInsertOnDeletedGroup Trigger Test:
+-- Attempt to insert a product for a deleted product group
+select * from Product_Group
+UPDATE Product_Group
+SET delete_date=GETDATE()
+WHERE id=2
+
+INSERT INTO Product (user_id, title, description, group_id, price, create_date, last_modify, delete_date)
+VALUES (1, 'smart phone', 'A great phone from Yasin Karbasian', 2, 100.00, '2023-10-04', '2023-10-04', NULL);
+select * from Product
+-- Attempt to insert a product for an existing product group
+UPDATE Product_Group
+SET delete_date=NULL
+WHERE id=2
+
+INSERT INTO Product (user_id, title, description, group_id, price, create_date, last_modify, delete_date)
+VALUES (1, 'smart phone', 'A great phone from Yasin Karbasian', 2, 100.00, '2023-10-04', '2023-10-04', NULL);
+select * from Product
+
+--UpdateProductDeleteDateOnGroupDelete Trigger Test:
+-- Update the delete_date of a product group and check if the trigger updates corresponding product delete_date
+select * from Product
+UPDATE Product_Group SET delete_date = GETDATE() WHERE id = 3;
+SELECT * FROM Product_Group 
+select * from Product
+
+
+---------------------------------------------------------
 -- some tests or usecases for the stored procedures
+
+
+
+
+
