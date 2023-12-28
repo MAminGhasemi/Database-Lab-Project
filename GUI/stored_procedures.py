@@ -57,6 +57,8 @@ class ProcedurePage(QWidget):
 
         input3_text = self.input3.text()
         self.output3.setText(f'Output 3: {self.procedure3(input3_text)}')
+    def set_cursor(self,cursor):
+        self.cursor = cursor
 
     def procedure1(self, input_text):
         # Replace this with your actual procedure logic

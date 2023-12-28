@@ -4,6 +4,7 @@ from PyQt5.QtGui import QIcon
 from functions import FunctionPage
 from views import ViewsPage
 from stored_procedures import ProcedurePage
+from connect_to_database import connect_database
 
 class MainWindow(QWidget):
     def __init__(self):
@@ -55,21 +56,27 @@ class MainWindow(QWidget):
     def show_functions(self):
         print("Functions button clicked")
         self.function_page = FunctionPage()
+        self.set_cursor(self.cursor)
         self.function_page.show()
 
     def show_views(self):
         print("Views button clicked")
-        self.function_page = ViewsPage()
-        self.function_page.show()
+        self.views = ViewsPage()
+        self.views.set_cursor(self.cursor)
+        self.views.show()
 
     def show_procedures(self):
         print("Procedures button clicked")
         self.procedure_page = ProcedurePage()
+        self.procedure_page.set_cursor(self.cursor)
         self.procedure_page.show()
 
+    def set_cursor(self,cursor):
+        self.cursor = cursor
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     window = MainWindow()
     window.show()
+    window.set_cursor(connect_database('localhost','ShopApp','SA','password','17'))
     sys.exit(app.exec_())
