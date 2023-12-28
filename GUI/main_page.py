@@ -58,8 +58,7 @@ class MainWindow(QWidget):
 
     def show_functions(self):
         print("Functions button clicked")
-        self.function_page = FunctionPage()
-        self.function_page.set_cursor(self.cursor)
+        self.function_page = FunctionPage(self.cursor)
         self.function_page.show()
 
     def show_views(self):
