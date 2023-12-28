@@ -4,6 +4,7 @@ CREATE DATABASE ShopApp;
 use ShopAPP;
 
 -- Create Tables
+DROP TABLE IF EXISTS Product_Group_Update_Log;
 DROP TABLE IF EXISTS [Message];
 DROP TABLE IF EXISTS [Product_Address];
 DROP TABLE IF EXISTS [User_Phone_Number];
@@ -110,6 +111,15 @@ CREATE TABLE [Message] (
   FOREIGN KEY (user_id_1) REFERENCES [User] (id),
   FOREIGN KEY (user_id_2) REFERENCES [User] (id),
   FOREIGN KEY (product_id) REFERENCES Product (id)
+);
+
+CREATE TABLE Product_Group_Update_Log (
+    id INT IDENTITY(1,1) NOT NULL,
+    group_id INT NOT NULL,
+    average_price DECIMAL(20, 2) NOT NULL,
+    update_date DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (group_id) REFERENCES Product_Group (id)
 );
 
 -- some edits to table in third phase
@@ -518,6 +528,7 @@ BEGIN
 END;
 
 -- stored procedure
+DROP PROCEDURE IF EXISTS UpdateProductGroupDescription;
 CREATE PROCEDURE UpdateProductGroupDescription
     @ProductGroupId INT
 AS
@@ -546,15 +557,9 @@ BEGIN
     VALUES (@ProductGroupId, @AveragePrice, GETDATE());
 END;
 
-CREATE TABLE Product_Group_Update_Log (
-    id INT IDENTITY(1,1) NOT NULL,
-    group_id INT NOT NULL,
-    average_price DECIMAL(20, 2) NOT NULL,
-    update_date DATETIME NOT NULL,
-    PRIMARY KEY (id),
-    FOREIGN KEY (group_id) REFERENCES Product_Group (id)
-);
 
+
+DROP PROCEDURE IF EXISTS SendMessage;
 CREATE PROCEDURE SendMessage
     @UserId1 INT,
     @UserId2 INT,
@@ -566,6 +571,7 @@ BEGIN
     VALUES (@UserId1, @UserId2, @ProductId, @MessageText, GETDATE(), GETDATE(), NULL);
 END;
 
+DROP PROCEDURE IF EXISTS UpdateProductPrice;
 CREATE PROCEDURE UpdateProductPrice
     @ProductId INT,
     @NewPrice DECIMAL(20, 2)
@@ -577,6 +583,7 @@ BEGIN
     WHERE id = @ProductId;
 END;
 
+DROP PROCEDURE IF EXISTS DeleteUser;
 CREATE PROCEDURE DeleteUser
     @UserId INT
 AS
@@ -586,6 +593,8 @@ BEGIN
     WHERE id = @UserId;
 END;
 
+
+DROP PROCEDURE IF EXISTS DeleteProductAndAssociatedData;
 CREATE PROCEDURE DeleteProductAndAssociatedData
     @ProductId INT
 AS
@@ -601,7 +610,8 @@ END;
 -- new stored procedure added in the third phase
 -- this function checks the user budget and product price to validate the transaction
 -- then add a transaction to the User_Transaction and lower the user budget acordingly
-ALTER PROCEDURE Add_Transaction
+DROP PROCEDURE IF EXISTS Add_Transaction;
+CREATE PROCEDURE Add_Transaction
     @user_id INT,
     @product_id INT
 AS
@@ -758,8 +768,52 @@ select * from Product
 
 ---------------------------------------------------------
 -- some tests or usecases for the stored procedures
+--Test UpdateProductGroupDescription Procedure:
+-- Update the description of a product group
+EXEC UpdateProductGroupDescription @ProductGroupId = 1;
+
+-- Check the updated Product_Group and Product_Group_Update_Log tables
+SELECT * FROM Product_Group WHERE id = 1;
+SELECT * FROM Product_Group_Update_Log;
+
+--Test SendMessage Procedure:
+-- Send a message
+SELECT * FROM Message WHERE user_id_1 = 1 AND user_id_2 = 2 AND product_id = 1;
+EXEC SendMessage @UserId1 = 1, @UserId2 = 2, @ProductId = 1, @MessageText = 'Hello, how are you?';
+-- Check the inserted message
+SELECT * FROM Message WHERE user_id_1 = 1 AND user_id_2 = 2 AND product_id = 1;
+
+--Test UpdateProductPrice Procedure:
+-- Update the price of a product
+SELECT * FROM Product WHERE id = 1;
+EXEC UpdateProductPrice @ProductId = 1, @NewPrice = 75.00;
+
+-- Check the updated Product table
+SELECT * FROM Product WHERE id = 1;
 
 
+--Test DeleteUser Procedure:
+-- Delete a user
+SELECT * FROM [User] WHERE id = 1;
+EXEC DeleteUser @UserId = 1;
+
+-- Check the updated User table
+SELECT * FROM [User] WHERE id = 1;
 
 
+--Test DeleteProductAndAssociatedData Procedure:
+-- Delete a product and its associated data
+EXEC DeleteProductAndAssociatedData @ProductId = 1;
 
+-- Check if the product and associated data are deleted
+SELECT * FROM Product WHERE id = 1;
+SELECT * FROM Product_Address WHERE product_id = 1;
+SELECT * FROM Message WHERE product_id = 1;
+
+--Test Add_Transaction Procedure:
+-- Add a transaction
+EXEC Add_Transaction @user_id = 1, @product_id = 2;
+
+-- Check the updated User and User_Transactions tables
+SELECT * FROM [User] WHERE id = 1;
+SELECT * FROM User_Transactions WHERE user_id = 1 AND product_id = 2;
