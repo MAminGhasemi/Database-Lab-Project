@@ -26,6 +26,9 @@ class FunctionPage(QWidget):
         # Set the layout for the function page
         self.setLayout(layout)
 
+    def set_cursor(self,cursor):
+        self.cursor = cursor
+
     def create_function_widget(self, function_name, input_label_text, input_name, output_label_text, output_name, layout):
         function_layout = QHBoxLayout()
 

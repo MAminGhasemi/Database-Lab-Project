@@ -21,6 +21,9 @@ class ViewsPage(QWidget):
         # Set the layout for the views page
         self.setLayout(self.layout)
 
+    def set_cursor(self,cursor):
+        self.cursor = cursor
+
     def create_view_table(self, view_name, data):
         view_layout = QHBoxLayout()
         table = QTableWidget(self)
