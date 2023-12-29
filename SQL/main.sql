@@ -331,7 +331,7 @@ END;
 
 
 -- views
-DROP VIEW IF EXISTS User_Profile_View
+DROP VIEW IF EXISTS User_Profile_View;
 CREATE VIEW User_Profile_View AS
 SELECT
     u.id AS user_id,
@@ -350,7 +350,7 @@ JOIN User_Address ua ON u.id = ua.user_id
 JOIN User_Phone_Number upn ON u.id = upn.user_id;
 
 -- product details 
-DROP VIEW IF EXISTS Product_Details_View
+DROP VIEW IF EXISTS Product_Details_View;
 CREATE VIEW Product_Details_View AS
 SELECT
     p.id AS product_id,
@@ -365,7 +365,7 @@ JOIN Product_Group pg ON p.group_id = pg.id
 JOIN [User] u ON p.user_id = u.id;
 
 -- User_Message_History_View
-DROP VIEW IF EXISTS User_Message_History_View
+DROP VIEW IF EXISTS User_Message_History_View;
 CREATE VIEW User_Message_History_View AS
 SELECT
     m.id AS message_id,
@@ -380,7 +380,7 @@ JOIN [User] u2 ON m.user_id_2 = u2.id
 JOIN Product p ON m.product_id = p.id;
 
 -- User_Product_Summary_View
-DROP VIEW IF EXISTS User_Product_Summary_View
+DROP VIEW IF EXISTS User_Product_Summary_View;
 CREATE VIEW User_Product_Summary_View AS
 SELECT
     u.id AS user_id,
@@ -393,7 +393,7 @@ LEFT JOIN Product p ON u.id = p.user_id
 GROUP BY u.id, u.username;
 
 -- Active_Products_View
-DROP VIEW IF EXISTS Active_Products_View
+DROP VIEW IF EXISTS Active_Products_View;
 CREATE VIEW Active_Products_View AS
 SELECT
     p.id AS product_id,
@@ -407,7 +407,7 @@ JOIN Product_Group pg ON p.group_id = pg.id
 WHERE p.delete_date IS NULL;
 
 -- Product_Message_Count_View
-DROP VIEW IF EXISTS Product_Message_Count_View
+DROP VIEW IF EXISTS Product_Message_Count_View;
 CREATE VIEW Product_Message_Count_View AS
 SELECT
     p.id AS product_id,
@@ -675,7 +675,7 @@ END;
 SELECT * FROM GetProductMessages(1) WHERE user_id_1 = 3;
 
 --TotalProductPriceOfUser(@UserId INT):
-SELECT dbo.TotalProductPriceOfUser(1) as Total 
+SELECT dbo.TotalProductPriceOfUser(1) as Total;
 
 --IsProductGroupActive(@GroupId INT):
 SELECT dbo.IsProductGroupActive(1) AS IsActive;
@@ -712,17 +712,17 @@ SELECT * FROM Product_Message_Count_View;
 -- some tests or usecases for the Trigger 
 --tr_InsteadOfInsertUser Trigger Test
 -- Attempt to insert a user with an invalid national code
-select COUNT(*) from [User]
+select COUNT(*) from [User];
 INSERT INTO [User] (first_name, last_name, username, national_code, [password], email, create_date, last_modify, delete_date)
 VALUES ('John', 'Doe', 'johndoe', '6220015432', 'password123', 'john.doe@example.com', GETDATE(), GETDATE(), NULL);
-select COUNT(*) from [User]
+select COUNT(*) from [User];
 -- Insert a user with a valid national code
-select COUNT(*) from [User]
+select COUNT(*) from [User];
 INSERT INTO [User] (first_name, last_name, username, national_code, [password], email, create_date, last_modify, delete_date)
 VALUES ('ali', 'rezaee', 'ali', '1235545628',
 'd404559f602eab6fd602ac7680dacbfaadd13630335e951f097af3900e9de176b6db28512f2e000b9d04fba5133e8b1c6e8df59db3a8ab9d60be4b97cc9e81db',
 'yasinkarbasian@email.com', '2023-10-04', '2023-10-04', NULL);
-select COUNT(*) from [User]
+select COUNT(*) from [User];
 
 --UpdateMessageDeleteDate Trigger Test:
 -- Update the delete_date of a product and check if the trigger updates corresponding messages
@@ -744,26 +744,26 @@ SELECT * FROM [User] WHERE id = 1;
 select * from Product_Group
 UPDATE Product_Group
 SET delete_date=GETDATE()
-WHERE id=2
+WHERE id=2;
 
 INSERT INTO Product (user_id, title, description, group_id, price, create_date, last_modify, delete_date)
 VALUES (1, 'smart phone', 'A great phone from Yasin Karbasian', 2, 100.00, '2023-10-04', '2023-10-04', NULL);
-select * from Product
+select * from Product;
 -- Attempt to insert a product for an existing product group
 UPDATE Product_Group
 SET delete_date=NULL
-WHERE id=2
+WHERE id=2;
 
 INSERT INTO Product (user_id, title, description, group_id, price, create_date, last_modify, delete_date)
 VALUES (1, 'smart phone', 'A great phone from Yasin Karbasian', 2, 100.00, '2023-10-04', '2023-10-04', NULL);
-select * from Product
+select * from Product;
 
 --UpdateProductDeleteDateOnGroupDelete Trigger Test:
 -- Update the delete_date of a product group and check if the trigger updates corresponding product delete_date
-select * from Product
+select * from Product;
 UPDATE Product_Group SET delete_date = GETDATE() WHERE id = 3;
-SELECT * FROM Product_Group 
-select * from Product
+SELECT * FROM Product_Group;
+select * from Product;
 
 
 ---------------------------------------------------------
