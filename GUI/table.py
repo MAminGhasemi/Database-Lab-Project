@@ -21,6 +21,7 @@ class TablePage(QWidget):
         layout.addWidget(self.table_widget)
 
         self.setLayout(layout)
+        self.resize(800, 450)
 
     def set_cursor(self, cursor):
         self.cursor = cursor
