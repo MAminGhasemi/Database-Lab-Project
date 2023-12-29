@@ -2,7 +2,7 @@ import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton
 from PyQt5.QtGui import QIcon
 from functions import FunctionPage
-from views import ViewsPage
+from views import ViewPage
 from table import TablePage
 from stored_procedures import ProcedurePage
 from connect_to_database import connect_database
@@ -63,8 +63,7 @@ class MainWindow(QWidget):
 
     def show_views(self):
         print("Views button clicked")
-        self.views = ViewsPage()
-        self.views.set_cursor(self.cursor)
+        self.views = ViewPage(self.cursor)
         self.views.show()
 
     def show_procedures(self):
