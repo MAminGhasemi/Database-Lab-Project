@@ -81,6 +81,6 @@ class MainWindow(QWidget):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     window = MainWindow()
-    window.set_cursor(connect_database('.', 'ShopApp', 'sa', '1381', '17'))  # driver version
+    window.set_cursor(connect_database('.', 'ShopApp', 'sa', 'Password', '17'))  # driver version
     window.show()
     sys.exit(app.exec_())
