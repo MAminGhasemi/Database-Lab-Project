@@ -25,20 +25,26 @@ class ViewPage(QWidget):
         self.setLayout(self.layout)
 
     def create_view_table(self, view_name, data):
-        view_layout = QHBoxLayout()
+        view_layout = QVBoxLayout()
+
+        # Add label for the view name
+        view_label = QLabel(view_name)
+        view_layout.addWidget(view_label)
+
+        # Create table
         table = QTableWidget(self)
         table.setRowCount(len(data))
         table.setColumnCount(len(data[0]))
+
+        # Fetch column names from database metadata
+        column_names = [column[0] for column in self.cursor.description]
+        table.setHorizontalHeaderLabels(column_names)
 
         for i, row in enumerate(data):
             for j, item in enumerate(row):
                 table.setItem(i, j, QTableWidgetItem(str(item)))
 
-        table.setHorizontalHeaderLabels(['Column 1', 'Column 2', 'Column 3'])  # Adjust column labels as needed
-
         view_layout.addWidget(table)
-        view_layout.addWidget(QLabel(view_name))
-
         self.layout.addLayout(view_layout)
 
     def execute_view(self, view_name):
