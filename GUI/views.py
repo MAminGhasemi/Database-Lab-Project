@@ -6,39 +6,32 @@ class ViewPage(QWidget):
     def __init__(self, cursor):
         super(ViewPage, self).__init__()
 
-        # Set up the views page
         self.setWindowTitle('Views Page')
         self.setGeometry(200, 200, 600, 400)
 
-        # Store the database cursor
         self.cursor = cursor
 
-        # Create layout
         self.layout = QVBoxLayout()
 
-        # Create view tables
         self.create_view_table('User_Profile_View', self.execute_view('User_Profile_View'))
         self.create_view_table('Product_Details_View', self.execute_view('Product_Details_View'))
         self.create_view_table('User_Message_History_View', self.execute_view('User_Message_History_View'))
 
-        # Set the layout for the views page
         self.setLayout(self.layout)
 
+        self.resize(800, 600)
         self.setStyleSheet("background-color: rgb(97, 217, 193);")
 
     def create_view_table(self, view_name, data):
         view_layout = QVBoxLayout()
 
-        # Add label for the view name
         view_label = QLabel(view_name)
         view_layout.addWidget(view_label)
 
-        # Create table
         table = QTableWidget(self)
         table.setRowCount(len(data))
         table.setColumnCount(len(data[0]))
 
-        # Fetch column names from database metadata
         column_names = [column[0] for column in self.cursor.description]
         table.setHorizontalHeaderLabels(column_names)
 
@@ -61,6 +54,6 @@ class ViewPage(QWidget):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    window = ViewPage()  # Provide the cursor when you instantiate ViewPage
+    window = ViewPage() 
     window.show()
     sys.exit(app.exec_())

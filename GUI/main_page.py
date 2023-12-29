@@ -11,26 +11,21 @@ class MainWindow(QWidget):
     def __init__(self):
         super(MainWindow, self).__init__()
 
-        # Set up the main window
         self.setWindowTitle('Database Operations')
         self.setGeometry(100, 100, 400, 200)
 
-        # Create layout
         layout = QVBoxLayout()
 
-        # Create buttons with icons
         tables_button = self.create_button('Tables', 'icons/tables.png', self.show_tables)
         functions_button = self.create_button('Functions', 'icons/functions.png', self.show_functions)
         views_button = self.create_button('Views', 'icons/views.png', self.show_views)
         procedures_button = self.create_button('Procedures', 'icons/procedures.png', self.show_procedures)
 
-        # Add buttons to layout
         layout.addWidget(tables_button)
         layout.addWidget(functions_button)
         layout.addWidget(views_button)
         layout.addWidget(procedures_button)
 
-        # Set the layout for the main window
         self.setLayout(layout)
 
         self.setStyleSheet("background-color: rgb(97, 217, 193);")
