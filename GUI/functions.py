@@ -20,29 +20,37 @@ class FunctionPage(QWidget):
         # Add individual run buttons for each function
         run_button_1 = QPushButton('Run Check National Code', self)
         run_button_1.clicked.connect(self.run_check_national_code)
+        run_button_1.setStyleSheet("background-color:  rgb(152, 206, 220);")
         layout.addWidget(run_button_1)
         
         self.create_function_widget('Total Product Price Of User', 'User ID:', 'user_id_input', 'Result:', 'total_price_output', layout)
         run_button_2 = QPushButton('Run Total Product Price Of User', self)
         run_button_2.clicked.connect(self.run_total_product_price_of_user)
+        run_button_2.setStyleSheet("background-color:  rgb(152, 206, 220);")
         layout.addWidget(run_button_2)
 
         self.create_function_widget('Get Product Messages', 'Product ID:', 'product_id_input', 'Result:', 'product_messages_output', layout)
         run_button_3 = QPushButton('Run Get Product Messages', self)
         run_button_3.clicked.connect(self.run_get_product_messages)
+        run_button_3.setStyleSheet("background-color:  rgb(152, 206, 220);")
         layout.addWidget(run_button_3)
 
         # Set the layout for the function page
         self.setLayout(layout)
+
+        self.resize(800, 450)
+        self.setStyleSheet("background-color: rgb(97, 217, 193);")
 
     def create_function_widget(self, function_name, input_label_text, input_name, output_label_text, output_name, layout):
         function_layout = QHBoxLayout()
 
         input_label = QLabel(input_label_text)
         input_field = QLineEdit(self)
+        input_field.setStyleSheet("background-color: rgb(152, 206, 220);")
 
         output_label = QLabel(output_label_text)
         output_field = QTextEdit(self)
+        output_field.setStyleSheet("background-color:  rgb(152, 206, 220);")
         output_field.setReadOnly(True)
 
         function_layout.addWidget(QLabel(function_name))
@@ -106,5 +114,10 @@ class FunctionPage(QWidget):
 
     def display_product_messages(self, messages):
         # Display the result of GetProductMessages in the QTextEdit widget
-        message_text = "\n".join([str(message[4]) for message in messages])
+        message_text = "\n".join([f'From User ID {message[1]}: {str(message[4])}' for message in messages])
         self.product_messages_output.setText(message_text)
+
+
+
+
+

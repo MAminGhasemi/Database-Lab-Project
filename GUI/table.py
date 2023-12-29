@@ -23,6 +23,11 @@ class TablePage(QWidget):
         self.setLayout(layout)
         self.resize(800, 450)
 
+        self.setStyleSheet("background-color: rgb(97, 217, 193);")
+        self.table_list_widget.setStyleSheet("background-color:  rgb(152, 206, 220);")
+        self.table_widget.setStyleSheet("background-color:  rgb(152, 206, 220);")
+        
+
     def set_cursor(self, cursor):
         self.cursor = cursor
         self.populate_table_list()

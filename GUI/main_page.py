@@ -33,6 +33,8 @@ class MainWindow(QWidget):
         # Set the layout for the main window
         self.setLayout(layout)
 
+        self.setStyleSheet("background-color: rgb(97, 217, 193);")
+
     def create_button(self, text, icon_path, on_click):
         button = QPushButton(text, self)
         button.setIcon(QIcon(icon_path))
@@ -45,8 +47,8 @@ class MainWindow(QWidget):
                 margin: 5px;
                 border: 2px solid #4CAF50;
                 border-radius: 8px;
-                color: white;
-                background-color: #4CAF50;
+                color: Black;
+                background-color: rgb(152, 206, 220);
             }
             
             QPushButton:hover {

@@ -45,12 +45,14 @@ class ProcedurePage(QWidget):
         # Set the layout for the stored procedure page
         self.setLayout(layout)
 
+        self.setStyleSheet("background-color: rgb(97, 217, 193);")
+
     def create_widgets_update_product_group_description(self):
         input_layout = QHBoxLayout()
 
         label = QLabel('Product Group ID:')
         input_field = QLineEdit(self)
-        execute_button = QPushButton('Execute UpdateProductGroupDescription', self)
+        execute_button = QPushButton('Execute Update Product Group Description', self)
         execute_button.clicked.connect(lambda: self.execute_procedure_update_product_group_description())
 
         input_layout.addWidget(label)
@@ -71,7 +73,7 @@ class ProcedurePage(QWidget):
         self.product_id_input = QLineEdit(self)
         self.message_text_input = QLineEdit(self)
 
-        execute_button = QPushButton('Execute SendMessage', self)
+        execute_button = QPushButton('Execute Send Message', self)
         execute_button.clicked.connect(lambda: self.execute_procedure_send_message())
 
         input_layout.addWidget(label1)
@@ -96,7 +98,7 @@ class ProcedurePage(QWidget):
         self.product_id_input_price = QLineEdit(self)
         self.new_price_input = QLineEdit(self)
 
-        execute_button = QPushButton('Execute UpdateProductPrice', self)
+        execute_button = QPushButton('Execute Update Product Price', self)
         execute_button.clicked.connect(lambda: self.execute_procedure_update_product_price())
 
         input_layout.addWidget(label1)
@@ -114,7 +116,7 @@ class ProcedurePage(QWidget):
             input_value = int(input_text)
             self.cursor.execute(f"EXEC UpdateProductGroupDescription @ProductGroupId=?", input_value)
             self.cursor.commit()
-            self.status_label.setText('Stored procedure UpdateProductGroupDescription executed successfully.')
+            self.status_label.setText('Stored procedure Update Product Group Description executed successfully.')
         except ValueError:
             self.status_label.setText('Invalid input. Please enter a valid value.')
         except pyodbc.Error as ex:
@@ -135,7 +137,7 @@ class ProcedurePage(QWidget):
                                 input_value1, input_value2, input_value3, input_text4)
 
             self.cursor.commit()
-            self.status_label.setText('Stored procedure SendMessage executed successfully.')
+            self.status_label.setText('Stored procedure Send Message executed successfully.')
         except ValueError:
             self.status_label.setText('Invalid input. Please enter valid values.')
         except pyodbc.Error as ex:
@@ -152,7 +154,7 @@ class ProcedurePage(QWidget):
 
             self.cursor.execute("EXEC UpdateProductPrice @ProductId=?, @NewPrice=?", input_value1, input_value2)
             self.cursor.commit()
-            self.status_label.setText('Stored procedure UpdateProductPrice executed successfully.')
+            self.status_label.setText('Stored procedure Update Product Price executed successfully.')
         except ValueError:
             self.status_label.setText('Invalid input. Please enter valid values.')
         except pyodbc.Error as ex:

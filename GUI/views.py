@@ -24,6 +24,8 @@ class ViewPage(QWidget):
         # Set the layout for the views page
         self.setLayout(self.layout)
 
+        self.setStyleSheet("background-color: rgb(97, 217, 193);")
+
     def create_view_table(self, view_name, data):
         view_layout = QVBoxLayout()
 
@@ -46,6 +48,7 @@ class ViewPage(QWidget):
 
         view_layout.addWidget(table)
         self.layout.addLayout(view_layout)
+        table.setStyleSheet("background-color:  rgb(152, 206, 220);")
 
     def execute_view(self, view_name):
         try:
