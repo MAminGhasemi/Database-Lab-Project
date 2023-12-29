@@ -68,8 +68,7 @@ class MainWindow(QWidget):
 
     def show_procedures(self):
         print("Procedures button clicked")
-        self.procedure_page = ProcedurePage()
-        self.procedure_page.set_cursor(self.cursor)
+        self.procedure_page = ProcedurePage(self.cursor)
         self.procedure_page.show()
 
     def show_tables(self):

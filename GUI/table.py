@@ -39,12 +39,14 @@ class TablePage(QWidget):
     def show_table_data(self, item):
         table_name = item.text()
 
+    
         # Fetch all columns
         self.cursor.execute(f"SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = '{table_name}'")
         columns = [column[0] for column in self.cursor.fetchall()]
 
         # Fetch all data
-        self.cursor.execute(f"SELECT * FROM {table_name}")
+        # Enclose the table name in square brackets to avoid syntax errors
+        self.cursor.execute(f"SELECT * FROM [{table_name}]")
         data = self.cursor.fetchall()
 
         # Display columns in the table widget
@@ -57,3 +59,5 @@ class TablePage(QWidget):
             for col_num, col_data in enumerate(row_data):
                 item = QTableWidgetItem(str(col_data))
                 self.table_widget.setItem(row_num, col_num, item)
+
+

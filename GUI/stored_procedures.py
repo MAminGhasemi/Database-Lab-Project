@@ -1,66 +1,160 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QLabel, QLineEdit, QTextEdit, QHBoxLayout
-
-import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QTableWidget, QTableWidgetItem, QHBoxLayout, QLabel
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QLineEdit
 import pyodbc
 
-class ViewPage(QWidget):
+class ProcedurePage(QWidget):
     def __init__(self, cursor):
-        super(ViewPage, self).__init__()
+        super(ProcedurePage, self).__init__()
 
-        # Set up the views page
-        self.setWindowTitle('Views Page')
-        self.setGeometry(200, 200, 600, 400)
+        # Set up the stored procedure page
+        self.setWindowTitle('Procedure Page')
+        self.setGeometry(200, 200, 400, 200)
 
         # Store the database cursor
         self.cursor = cursor
 
         # Create layout
-        self.layout = QVBoxLayout()
+        layout = QVBoxLayout()
 
-        # Create view tables
-        self.create_view_table('User_Profile_View', self.execute_view('User_Profile_View'))
-        self.create_view_table('Product_Details_View', self.execute_view('Product_Details_View'))
-        self.create_view_table('User_Message_History_View', self.execute_view('User_Message_History_View'))
+        # Create input and execute button widgets for UpdateProductGroupDescription
+        input_layout_1, self.product_group_id_input, execute_button_1 = self.create_widgets_update_product_group_description()
 
-        # Set the layout for the views page
-        self.setLayout(self.layout)
+        # Add input and execute button for UpdateProductGroupDescription to the layout
+        layout.addLayout(input_layout_1)
+        layout.addWidget(execute_button_1)
 
-    def create_view_table(self, view_name, data):
-        view_layout = QVBoxLayout()
+        # Create input and execute button widgets for SendMessage
+        input_layout_2, execute_button_2 = self.create_widgets_send_message()
 
-        # Add label for the view name
-        view_label = QLabel(view_name)
-        view_layout.addWidget(view_label)
+        # Add input and execute button for SendMessage to the layout
+        layout.addLayout(input_layout_2)
+        layout.addWidget(execute_button_2)
 
-        # Create table
-        table = QTableWidget(self)
-        table.setRowCount(len(data))
-        table.setColumnCount(len(data[0]))
+        # Create input and execute button widgets for UpdateProductPrice
+        input_layout_3, execute_button_3 = self.create_widgets_update_product_price()
 
-        # Fetch column names from database metadata
-        column_names = [column[0] for column in self.cursor.description]
-        table.setHorizontalHeaderLabels(column_names)
 
-        for i, row in enumerate(data):
-            for j, item in enumerate(row):
-                table.setItem(i, j, QTableWidgetItem(str(item)))
+        # Add input and execute button for UpdateProductPrice to the layout
+        layout.addLayout(input_layout_3)
+        layout.addWidget(execute_button_3)
 
-        view_layout.addWidget(table)
-        self.layout.addLayout(view_layout)
+        # Add status label
+        self.status_label = QLabel('')
+        layout.addWidget(self.status_label)
 
-    def execute_view(self, view_name):
+        # Set the layout for the stored procedure page
+        self.setLayout(layout)
+
+    def create_widgets_update_product_group_description(self):
+        input_layout = QHBoxLayout()
+
+        label = QLabel('Product Group ID:')
+        input_field = QLineEdit(self)
+        execute_button = QPushButton('Execute UpdateProductGroupDescription', self)
+        execute_button.clicked.connect(lambda: self.execute_procedure_update_product_group_description())
+
+        input_layout.addWidget(label)
+        input_layout.addWidget(input_field)
+
+        return input_layout, input_field, execute_button
+
+    def create_widgets_send_message(self):
+        input_layout = QHBoxLayout()
+
+        label1 = QLabel('User ID 1:')
+        label2 = QLabel('User ID 2:')
+        label3 = QLabel('Product ID:')
+        label4 = QLabel('Message Text:')
+
+        self.user_id_1_input = QLineEdit(self)
+        self.user_id_2_input = QLineEdit(self)
+        self.product_id_input = QLineEdit(self)
+        self.message_text_input = QLineEdit(self)
+
+        execute_button = QPushButton('Execute SendMessage', self)
+        execute_button.clicked.connect(lambda: self.execute_procedure_send_message())
+
+        input_layout.addWidget(label1)
+        input_layout.addWidget(self.user_id_1_input)
+        input_layout.addWidget(label2)
+        input_layout.addWidget(self.user_id_2_input)
+        input_layout.addWidget(label3)
+        input_layout.addWidget(self.product_id_input)
+        input_layout.addWidget(label4)
+        input_layout.addWidget(self.message_text_input)
+        input_layout.addWidget(execute_button)
+
+        return input_layout, execute_button
+
+
+    def create_widgets_update_product_price(self):
+        input_layout = QHBoxLayout()
+
+        label1 = QLabel('Product ID:')
+        label2 = QLabel('New Price:')
+
+        self.product_id_input_price = QLineEdit(self)
+        self.new_price_input = QLineEdit(self)
+
+        execute_button = QPushButton('Execute UpdateProductPrice', self)
+        execute_button.clicked.connect(lambda: self.execute_procedure_update_product_price())
+
+        input_layout.addWidget(label1)
+        input_layout.addWidget(self.product_id_input_price)
+        input_layout.addWidget(label2)
+        input_layout.addWidget(self.new_price_input)
+        input_layout.addWidget(execute_button)
+
+        return input_layout, execute_button
+
+    def execute_procedure_update_product_group_description(self):
+        input_text = self.product_group_id_input.text()
+
         try:
-            self.cursor.execute(f"SELECT * FROM {view_name}")
-            result = self.cursor.fetchall()
-            return result
+            input_value = int(input_text)
+            self.cursor.execute(f"EXEC UpdateProductGroupDescription @ProductGroupId=?", input_value)
+            self.cursor.commit()
+            self.status_label.setText('Stored procedure UpdateProductGroupDescription executed successfully.')
+        except ValueError:
+            self.status_label.setText('Invalid input. Please enter a valid value.')
         except pyodbc.Error as ex:
-            print(f"Error: {ex}")
-            return []
+            self.status_label.setText(f'Error: {ex}')
 
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    window = ViewPage()  # Provide the cursor when you instantiate ViewPage
-    window.show()
-    sys.exit(app.exec_())
+    def execute_procedure_send_message(self):
+        input_text1 = self.user_id_1_input.text()
+        input_text2 = self.user_id_2_input.text()
+        input_text3 = self.product_id_input.text()
+        input_text4 = self.message_text_input.text()
+
+        try:
+            input_value1 = int(input_text1)
+            input_value2 = int(input_text2)
+            input_value3 = int(input_text3)
+
+            self.cursor.execute("EXEC SendMessage @UserId1=?, @UserId2=?, @ProductId=?, @MessageText=?",
+                                input_value1, input_value2, input_value3, input_text4)
+
+            self.cursor.commit()
+            self.status_label.setText('Stored procedure SendMessage executed successfully.')
+        except ValueError:
+            self.status_label.setText('Invalid input. Please enter valid values.')
+        except pyodbc.Error as ex:
+            self.status_label.setText(f'Error: {ex}')
+
+
+    def execute_procedure_update_product_price(self):
+        input_text1 = self.product_id_input_price.text()
+        input_text2 = self.new_price_input.text()
+
+        try:
+            input_value1 = int(input_text1)
+            input_value2 = float(input_text2)
+
+            self.cursor.execute("EXEC UpdateProductPrice @ProductId=?, @NewPrice=?", input_value1, input_value2)
+            self.cursor.commit()
+            self.status_label.setText('Stored procedure UpdateProductPrice executed successfully.')
+        except ValueError:
+            self.status_label.setText('Invalid input. Please enter valid values.')
+        except pyodbc.Error as ex:
+            self.status_label.setText(f'Error: {ex}')
+
