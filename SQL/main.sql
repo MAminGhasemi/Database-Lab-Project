@@ -15,21 +15,20 @@ DROP TABLE IF EXISTS [Product];
 DROP TABLE IF EXISTS [Product_Group];
 
 
-
-
 CREATE TABLE [User] (
   id INT IDENTITY(1,1) NOT NULL,
   first_name VARCHAR(50) NOT NULL,
   last_name VARCHAR(50) NOT NULL,
   username VARCHAR(50) NOT NULL UNIQUE,
-  national_code VARCHAR(10),
+  national_code VARCHAR(10) ,
   [password] CHAR(128) NOT NULL,
   email VARCHAR(100) NOT NULL,
   budget int not null default 500,
   create_date DATETIME NOT NULL,
   last_modify DATETIME NOT NULL,
   delete_date DATETIME,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  CONSTRAINT CK_NationalCodeLength CHECK (LEN(national_code) <= 10)
 );
 
 CREATE TABLE User_Address (
@@ -122,7 +121,7 @@ CREATE TABLE Product_Group_Update_Log (
     FOREIGN KEY (group_id) REFERENCES Product_Group (id)
 );
 
--- some edits to table in third phase
+
 create table User_Transactions(
     user_id int,
     product_id int ,
@@ -132,7 +131,7 @@ create table User_Transactions(
     FOREIGN KEY(product_id) REFERENCES Product(id)
 )
 
--- Add data samples (more data samples are added in the third phase)
+-- Add data samples 
 
 INSERT INTO [User] (first_name, last_name, username, national_code, [password], email, create_date, last_modify, delete_date)
 VALUES ('Yasin', 'Karbasian', 'yasinkarbasian', '5042819266',
@@ -219,9 +218,6 @@ VALUES (3,1,1, 'I love your smartwatch, Yasin!', '2023-10-04', '2023-10-04', NUL
 
 -- select * from Message;
 
--- some alters added in the third phase
---ALTER TABLE [User]
---ADD budget int not null default 500;
 
 -- Functions
 DROP FUNCTION IF EXISTS GetProductMessages;
@@ -273,20 +269,20 @@ BEGIN
 END;
 
 DROP FUNCTION IF EXISTS CheckNationalCode;
-CREATE FUNCTION CheckNationalCode (@nationalCode NVARCHAR(MAX))
+CREATE FUNCTION CheckNationalCode(@nationalCode NVARCHAR(MAX))
 RETURNS BIT
 AS
 BEGIN
     DECLARE @isValid BIT;
 
     -- بررسی طول کد ملی
-    IF LEN(@nationalCode) > 10
+    IF LEN(@nationalCode) > 10 OR LEN(@nationalCode) < 8 
     BEGIN
         SET @isValid = 0;
     END
     ELSE  
     BEGIN
-    SET @nationalCode = RIGHT('00000000000' + @nationalCode, 10);
+    SET @nationalCode = RIGHT('00' + @nationalCode, 10);
         -- محاسبه مجموع مراحل یک تا 10
         DECLARE @sum INT = 0;
         DECLARE @i INT = 1;
@@ -316,19 +312,6 @@ BEGIN
 
     RETURN @isValid;
 END;
-
----- new function added in the third phase
---create function show_product_sell_count(@id1 int,@id2 int)
---returns TABLE
---as 
---BEGIN
---select * from User_Transactions
---pivot(
---    count(*)
---    for product_id in (1,2,3)
---)
---END
-
 
 -- views
 DROP VIEW IF EXISTS User_Profile_View;
@@ -684,8 +667,6 @@ SELECT dbo.IsProductGroupActive(1) AS IsActive;
 DECLARE @NationalCode NVARCHAR(MAX) = '6220032294';
 SELECT dbo.CheckNationalCode(@NationalCode) AS IsValid;
 
--- Test show_product_sell_count Function
-SELECT * FROM show_product_sell_count();
 
 ------------------------------------------------------
 -- some tests or usecases for the views 
